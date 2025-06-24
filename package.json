@@ -1,24 +1,22 @@
 {
-  "name": "intelligent-task-routing-jira",
-  "version": "1.0.0",
+  "name": "intelligent-task-routing",
+  "version": "2.0.0",
   "description": "AI-powered intelligent task routing and prioritization for Jira",
   "main": "src/index.js",
   "scripts": {
-    "build": "npm run build:frontend",
-    "build:frontend": "cd static/ai-suggestions-panel && npm run build",
-    "install:frontend": "cd static/ai-suggestions-panel && npm install",
+    "build": "cd static/hello-world && npm run build",
     "deploy": "forge deploy",
     "install-app": "forge install",
     "logs": "forge logs",
     "tunnel": "forge tunnel"
   },
   "dependencies": {
-    "@forge/api": "^3.0.0",
-    "@forge/resolver": "^1.5.0",
-    "openai": "^4.20.0"
+    "@forge/api": "^4.0.0",
+    "@forge/resolver": "^1.8.0",
+    "openai": "^4.28.0"
   },
   "devDependencies": {
-    "@forge/cli": "^6.10.0"
+    "@forge/cli": "^12.0.0"
   },
   "keywords": [
     "jira",

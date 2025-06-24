@@ -3,6 +3,18 @@ modules:
   function:
     - key: issue-event-handler
       handler: index.issueEventHandler
+    - key: admin-resolver
+      handler: resolvers.adminResolver
+
+    # Admin configuration page
+  jira:adminPage:
+    - key: ai-routing-admin
+      title: AI Task Routing Configuration
+      resource: admin
+      resolver:
+        function: admin-resolver
+      conditions:
+        - condition: user_is_admin
 
   # Event triggers
   trigger:
@@ -27,6 +39,10 @@ permissions:
         - api.openai.com
         - api.anthropic.com
         - generativelanguage.googleapis.com
+
+resources:
+  - key: admin
+    path: static/hello-world/build
 
 app:
   runtime:
