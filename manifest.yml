@@ -2,7 +2,7 @@ modules:
   # Issue event handler function
   function:
     - key: issue-event-handler
-      handler: src/index.issueEventHandler
+      handler: index.issueEventHandler
 
   # Event triggers
   trigger:
