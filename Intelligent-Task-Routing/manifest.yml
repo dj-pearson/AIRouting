@@ -1,0 +1,19 @@
+modules:
+  jira:adminPage:
+    - key: intelligent-task-routing-hello-world-admin-page
+      resource: main
+      resolver:
+        function: resolver
+      title: Intelligent Task Routing
+  function:
+    - key: resolver
+      handler: index.handler
+resources:
+  - key: main
+    path: static/hello-world/build
+app:
+  runtime:
+    name: nodejs22.x
+    memoryMB: 256
+    architecture: arm64
+  id: ari:cloud:ecosystem::app/7090beeb-791d-4b60-831b-b11be1be472c
