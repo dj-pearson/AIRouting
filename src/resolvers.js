@@ -367,4 +367,77 @@ async function getAnalytics() {
   }
 }
 
+/**
+ * Simple resolver for admin page - gets configuration
+ */
+resolver.define("getConfig", async (req) => {
+  try {
+    logger.info("Getting simple config for admin UI");
+
+    const config = await ConfigurationManager.getConfiguration();
+
+    return {
+      selectedModel: config.selectedModel || "gpt-4",
+      autoAssign: config.autoAssign !== false,
+      autoPriority: config.autoSetPriority !== false,
+      enableSuggestions: config.enabled !== false,
+      confidenceThreshold: config.confidenceThreshold || 0.8,
+    };
+  } catch (error) {
+    logger.error("Error getting simple config", { error: error.message });
+
+    // Return defaults if config load fails
+    return {
+      selectedModel: "gpt-4",
+      autoAssign: true,
+      autoPriority: true,
+      enableSuggestions: true,
+      confidenceThreshold: 0.8,
+    };
+  }
+});
+
+/**
+ * Simple resolver for admin page - saves configuration
+ */
+resolver.define("saveConfig", async (req) => {
+  try {
+    const { payload } = req;
+    logger.info("Saving simple config from admin UI", { config: payload });
+
+    // Map UI config to internal config format
+    const configUpdate = {
+      selectedModel: payload.selectedModel,
+      autoAssign: payload.autoAssign,
+      autoSetPriority: payload.autoPriority,
+      enabled: payload.enableSuggestions,
+      confidenceThreshold: payload.confidenceThreshold,
+    };
+
+    await ConfigurationManager.updateConfiguration(configUpdate);
+
+    return {
+      success: true,
+      message: "Configuration saved successfully",
+    };
+  } catch (error) {
+    logger.error("Error saving simple config", {
+      error: error.message,
+      payload: req.payload,
+    });
+
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+});
+
+/**
+ * Default resolver for basic template functionality
+ */
+resolver.define("getText", async (req) => {
+  return "🤖 AI Task Routing is active and ready!";
+});
+
 export const aiSuggestionsResolver = resolver.getDefinitions();

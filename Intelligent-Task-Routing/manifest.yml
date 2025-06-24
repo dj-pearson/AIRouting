@@ -1,19 +1,64 @@
 modules:
   jira:adminPage:
-    - key: intelligent-task-routing-hello-world-admin-page
+    - key: intelligent-task-routing-admin-page
       resource: main
       resolver:
         function: resolver
-      title: Intelligent Task Routing
+      title: AI Task Routing & Workload Management
+
+  jira:issuePanel:
+    - key: ai-suggestions-panel
+      icon: https://developer.atlassian.com/platform/forge/images/icons/robot.svg
+      resource: suggestions
+      resolver:
+        function: ai-resolver
+      title: AI Suggestions
+
   function:
     - key: resolver
       handler: index.handler
+    - key: workload-resolver
+      handler: index.workloadHandler
+    - key: ai-resolver
+      handler: ai-routing.aiSuggestionsResolver
+    - key: issue-event-handler
+      handler: ai-routing.issueEventHandler
+
+  trigger:
+    - key: issue-created-trigger
+      function: issue-event-handler
+      events:
+        - avi:jira:created:issue
+    - key: issue-updated-trigger
+      function: issue-event-handler
+      events:
+        - avi:jira:updated:issue
+
 resources:
   - key: main
     path: static/hello-world/build
+  - key: workload-dashboard
+    path: static/workload-dashboard/build
+  - key: suggestions
+    path: static/ai-suggestions-panel/build
+
+permissions:
+  scopes:
+    - "read:jira-work"
+    - "write:jira-work"
+    - "read:jira-user"
+    - "manage:jira-configuration"
+    - "storage:app"
+  external:
+    fetch:
+      backend:
+        - api.openai.com
+        - api.anthropic.com
+        - generativelanguage.googleapis.com
+
 app:
   runtime:
     name: nodejs22.x
-    memoryMB: 256
+    memoryMB: 512
     architecture: arm64
   id: ari:cloud:ecosystem::app/7090beeb-791d-4b60-831b-b11be1be472c

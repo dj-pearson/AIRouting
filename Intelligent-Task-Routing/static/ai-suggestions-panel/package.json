@@ -1,0 +1,46 @@
+{
+  "name": "ai-suggestions-panel",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@forge/bridge": "^3.0.0",
+    "@atlaskit/button": "^17.0.0",
+    "@atlaskit/spinner": "^16.0.0",
+    "@atlaskit/avatar": "^21.0.0",
+    "@atlaskit/badge": "^15.0.0",
+    "@atlaskit/icon": "^22.0.0",
+    "@atlaskit/lozenge": "^11.0.0",
+    "@atlaskit/section-message": "^6.0.0",
+    "@atlaskit/tokens": "^1.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "styled-components": "^6.0.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "react-scripts": "^5.0.1"
+  }
+}
