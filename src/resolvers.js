@@ -1,8 +1,8 @@
 import Resolver from "@forge/resolver";
 import { ConfigurationManager } from "./configuration-manager.js";
+import api, { route } from "@forge/api";
 import { AIRoutingEngine } from "./ai-routing-engine.js";
 import { Logger } from "./utils/logger.js";
-import api, { route } from "@forge/api";
 
 const resolver = new Resolver();
 const logger = new Logger("Resolvers");
@@ -434,6 +434,178 @@ resolver.define("saveConfig", async (req) => {
 });
 
 /**
+ * Resolver for getting triage analytics data
+ */
+resolver.define("getTriageAnalytics", async (req) => {
+  try {
+    logger.info("Getting triage analytics");
+
+    // Get analytics counters from storage
+    const counters = await api.asApp().storage.get("triage-analytics-counters");
+
+    if (!counters) {
+      return {
+        totalTriaged: 0,
+        byCategory: {},
+        byPriority: {},
+        bySentiment: {},
+        byUrgency: {},
+        lastUpdated: new Date().toISOString(),
+      };
+    }
+
+    return counters;
+  } catch (error) {
+    logger.error("Error getting triage analytics", {
+      error: error.message,
+    });
+
+    return {
+      error: "Failed to load analytics data",
+      details: error.message,
+    };
+  }
+});
+
+/**
+ * Resolver for getting recent triage activity
+ */
+resolver.define("getRecentTriageActivity", async (req) => {
+  try {
+    logger.info("Getting recent triage activity");
+
+    // Get all triage activity keys
+    const storageQuery = await api
+      .asApp()
+      .storage.query()
+      .where("key", "like", "triage-activity-%")
+      .limit(50);
+
+    const activities = [];
+
+    // Get activity data for each key
+    for (const result of storageQuery.results) {
+      try {
+        const activity = await api.asApp().storage.get(result.key);
+        if (activity) {
+          activities.push(activity);
+        }
+      } catch (error) {
+        logger.warn("Error loading activity", { key: result.key });
+      }
+    }
+
+    // Sort by timestamp (most recent first)
+    activities.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    return activities.slice(0, 20); // Return only the 20 most recent
+  } catch (error) {
+    logger.error("Error getting recent triage activity", {
+      error: error.message,
+    });
+
+    return [];
+  }
+});
+
+/**
+ * Resolver for getting triage statistics summary
+ */
+resolver.define("getTriageStatsSummary", async (req) => {
+  try {
+    const { payload } = req;
+    const { timeframe = "7d" } = payload || {};
+
+    logger.info("Getting triage stats summary", { timeframe });
+
+    // Calculate date range
+    const now = new Date();
+    const cutoffDate = new Date();
+
+    switch (timeframe) {
+      case "1d":
+        cutoffDate.setDate(now.getDate() - 1);
+        break;
+      case "7d":
+        cutoffDate.setDate(now.getDate() - 7);
+        break;
+      case "30d":
+        cutoffDate.setDate(now.getDate() - 30);
+        break;
+      default:
+        cutoffDate.setDate(now.getDate() - 7);
+    }
+
+    // Get recent activities within timeframe
+    const storageQuery = await api
+      .asApp()
+      .storage.query()
+      .where("key", "like", "triage-activity-%")
+      .limit(1000);
+
+    const activities = [];
+
+    for (const result of storageQuery.results) {
+      try {
+        const activity = await api.asApp().storage.get(result.key);
+        if (activity && new Date(activity.timestamp) >= cutoffDate) {
+          activities.push(activity);
+        }
+      } catch (error) {
+        logger.warn("Error loading activity for summary", { key: result.key });
+      }
+    }
+
+    // Calculate statistics
+    const stats = {
+      totalTriaged: activities.length,
+      averageConfidence: 0,
+      escalationRiskCount: 0,
+      criticalPriorityCount: 0,
+      negativeSentimentCount: 0,
+      immediateUrgencyCount: 0,
+      topCategories: {},
+      timeframe,
+      generatedAt: new Date().toISOString(),
+    };
+
+    if (activities.length > 0) {
+      // Calculate average confidence
+      const confidenceSum = activities.reduce((sum, activity) => {
+        return sum + (activity.triageResults?.confidence || 0);
+      }, 0);
+      stats.averageConfidence = (confidenceSum / activities.length).toFixed(2);
+
+      // Count specific conditions
+      activities.forEach((activity) => {
+        const triage = activity.triageResults;
+        if (triage) {
+          if (triage.sentiment === "negative") stats.negativeSentimentCount++;
+          if (triage.priority === "critical") stats.criticalPriorityCount++;
+          if (triage.urgency === "immediate") stats.immediateUrgencyCount++;
+
+          // Count categories
+          const category = triage.category || "unknown";
+          stats.topCategories[category] =
+            (stats.topCategories[category] || 0) + 1;
+        }
+      });
+    }
+
+    return stats;
+  } catch (error) {
+    logger.error("Error getting triage stats summary", {
+      error: error.message,
+    });
+
+    return {
+      error: "Failed to generate statistics summary",
+      details: error.message,
+    };
+  }
+});
+
+/**
  * Default resolver for basic template functionality
  */
 resolver.define("getText", async (req) => {
@@ -441,3 +613,4 @@ resolver.define("getText", async (req) => {
 });
 
 export const aiSuggestionsResolver = resolver.getDefinitions();
+export const adminResolver = resolver.getDefinitions();

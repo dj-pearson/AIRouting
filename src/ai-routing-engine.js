@@ -59,14 +59,14 @@ export class AIRoutingEngine {
   /**
    * Generate AI suggestions for issue assignment and priority
    */
-  async generateSuggestions(issueData) {
+  async generateSuggestions(issueData, triageResult = null) {
     try {
       this.logger.info("Generating AI suggestions", {
         issueKey: issueData.key,
       });
 
       // Prepare context for AI analysis
-      const context = this.prepareIssueContext(issueData);
+      const context = this.prepareIssueContext(issueData, triageResult);
 
       // Generate suggestions based on selected model
       let suggestions = {};
@@ -104,7 +104,7 @@ export class AIRoutingEngine {
   /**
    * Prepare issue context for AI analysis
    */
-  prepareIssueContext(issueData) {
+  prepareIssueContext(issueData, triageResult = null) {
     const context = {
       issue: {
         key: issueData.key,
@@ -135,6 +135,23 @@ export class AIRoutingEngine {
           resolutionDate: issue.fields.resolutiondate,
         })),
       },
+      triage: triageResult
+        ? {
+            category: triageResult.categorization.type,
+            priority: triageResult.priority.level,
+            urgency: triageResult.urgency.level,
+            sentiment: {
+              tone: triageResult.sentiment.tone,
+              escalationRisk: triageResult.sentiment.escalationRisk,
+              hasAngryLanguage:
+                triageResult.sentiment.languageFlags.hasAngryLanguage,
+              hasUrgentLanguage:
+                triageResult.sentiment.languageFlags.hasUrgentLanguage,
+            },
+            recommendations: triageResult.recommendations,
+            confidence: triageResult.confidence,
+          }
+        : null,
     };
 
     return context;
@@ -181,7 +198,7 @@ export class AIRoutingEngine {
    * Build prompt for OpenAI analysis
    */
   buildOpenAIPrompt(context) {
-    const { issue, team, history } = context;
+    const { issue, team, history, triage } = context;
 
     return `
 Analyze this Jira issue and provide intelligent routing suggestions:
@@ -198,7 +215,24 @@ Analyze this Jira issue and provide intelligent routing suggestions:
 - Labels: ${issue.labels.join(", ") || "None"}
 - Project: ${issue.project.name} (${issue.project.key})
 
-**TEAM MEMBERS:**
+${
+  triage
+    ? `**AI TRIAGE ANALYSIS:**
+- Category: ${triage.category}
+- AI Priority: ${triage.priority}
+- Urgency: ${triage.urgency}
+- Sentiment: ${triage.sentiment.tone} (Escalation Risk: ${
+        triage.sentiment.escalationRisk
+      })
+- Language Flags: ${triage.sentiment.hasAngryLanguage ? "Angry" : ""} ${
+        triage.sentiment.hasUrgentLanguage ? "Urgent" : ""
+      }
+- AI Confidence: ${Math.round(triage.confidence * 100)}%
+- Recommendations: ${triage.recommendations.map((r) => r.message).join("; ")}
+
+`
+    : ""
+}**TEAM MEMBERS:**
 ${team.assignableUsers
   .map((user, idx) => `${idx + 1}. ${user.displayName} (${user.accountId})`)
   .join("\n")}
@@ -233,9 +267,32 @@ Please respond with a JSON object containing:
 Consider these factors:
 1. Component expertise based on similar issues
 2. Issue complexity and urgency indicators
-3. Workload distribution (if you have that data)
+3. Workload distribution (if you have that data)  
 4. Past assignment patterns
 5. Issue type and description content analysis
+${
+  triage
+    ? `6. AI Triage Analysis (especially priority, urgency, and sentiment)
+7. Customer escalation risk and emotional tone
+8. Specialized skills needed (e.g., security issues, performance problems)`
+    : ""
+}
+
+${
+  triage && triage.sentiment.escalationRisk === "high"
+    ? "⚠️ IMPORTANT: This issue has HIGH escalation risk - consider assigning to senior team members who excel at customer communication."
+    : ""
+}
+${
+  triage && triage.sentiment.hasAngryLanguage
+    ? "⚠️ IMPORTANT: Customer appears frustrated - prioritize team members with strong communication skills."
+    : ""
+}
+${
+  triage && triage.urgency === "immediate"
+    ? "🚨 URGENT: This issue requires immediate attention - assign to available senior team member."
+    : ""
+}
 
 Provide confidence scores between 0.0 and 1.0 and detailed reasoning.
 `;

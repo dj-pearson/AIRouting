@@ -19,6 +19,13 @@ export class ConfigurationManager {
       autoSetPriority: false,
       allowReassignment: false,
 
+      // Triage and Tagging features
+      enableTriage: true,
+      autoSetLabels: true,
+      autoSetComponents: false, // Start with manual approval
+      enableSentimentAnalysis: true,
+      enableUrgencyDetection: true,
+
       // AI Model Configuration
       selectedModel: "openai-gpt3.5", // Start with cheaper model
       minConfidenceThreshold: 0.6,
@@ -58,6 +65,28 @@ export class ConfigurationManager {
       maxSimilarIssues: 10,
       similarIssueTimeRange: 30, // days
       enableFeedbackLearning: true,
+
+      // Triage Configuration
+      triageSettings: {
+        minConfidenceForAutoLabeling: 0.6,
+        minConfidenceForAutoPriority: 0.7,
+        minConfidenceForAutoComponents: 0.8,
+        enableEscalationDetection: true,
+        enableEmotionalAnalysis: true,
+        sentimentThresholds: {
+          escalationRisk: 0.7, // Threshold for flagging escalation risk
+          urgentLanguage: 0.6, // Threshold for detecting urgent language
+          angryLanguage: 0.5, // Threshold for detecting angry language
+        },
+      },
+
+      // Custom Fields Mapping (for storing triage metadata)
+      customFields: {
+        aiConfidenceField: null, // Custom field ID for AI confidence score
+        triageTimestampField: null, // Custom field ID for triage timestamp
+        sentimentScoreField: null, // Custom field ID for sentiment score
+        escalationRiskField: null, // Custom field ID for escalation risk
+      },
 
       // Analytics and Logging
       enableAnalytics: true,

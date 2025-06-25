@@ -4,11 +4,14 @@
   "description": "AI-powered intelligent task routing and prioritization for Jira",
   "main": "src/index.js",
   "scripts": {
-    "build": "cd static/hello-world && npm run build",
+    "build": "npm run build:triage",
+    "build:admin": "echo 'Admin UI uses static files, no build needed'",
+    "build:triage": "cd static/triage-dashboard && npm run build",
     "deploy": "forge deploy",
     "install-app": "forge install",
     "logs": "forge logs",
-    "tunnel": "forge tunnel"
+    "tunnel": "forge tunnel",
+    "setup": "cd static/triage-dashboard && npm install"
   },
   "dependencies": {
     "@forge/api": "^4.0.0",

@@ -5,11 +5,10 @@ modules:
       handler: index.issueEventHandler
     - key: admin-resolver
       handler: resolvers.adminResolver
-
-    # Admin configuration page
+      # Admin configuration page
   jira:adminPage:
     - key: ai-routing-admin
-      title: AI Task Routing Configuration
+      title: AI Task Routing & Analytics
       resource: admin
       resolver:
         function: admin-resolver
@@ -34,16 +33,20 @@ permissions:
     - read:jira-user
     - manage:jira-configuration
   external:
+    images: []
     fetch:
       backend:
-        - api.openai.com
-        - api.anthropic.com
-        - generativelanguage.googleapis.com
+        - "*.openai.com"
+        - "*.anthropic.com"
+        - "*.googleapis.com"
 
 resources:
   - key: admin
     path: static/hello-world/build
+  - key: triage-dashboard
+    path: static/triage-dashboard/build
 
 app:
+  id: ari:cloud:ecosystem::app/7090beeb-791d-4b60-831b-b11be1be472c
   runtime:
     name: nodejs20.x

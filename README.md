@@ -1,71 +1,58 @@
-# 🤖 Intelligent Task Routing App for Jira
+# Intelligent Task Routing & Triage for Jira
 
-An AI-powered Forge app that automatically suggests optimal assignees and priority levels for Jira issues, helping teams work more efficiently and ensure tasks reach the right people quickly.
+An AI-powered Jira app that provides intelligent task routing, ticket triage, and automated tagging capabilities. This app analyzes issue content to automatically categorize, prioritize, and route tickets to the most suitable team members while detecting sentiment and urgency.
 
-## ✨ Features
+## 🚀 Features
 
-### MVP Features (Current)
+### Core AI Routing
 
-- **🎯 AI-Powered Assignee Recommendations**: Get intelligent suggestions for who should work on each issue
-- **📊 Priority Prediction**: AI analyzes issue content to suggest appropriate priority levels
-- **🔧 Multi-Model Support**: Choose from OpenAI GPT-4/3.5, with Anthropic Claude and Google Gemini planned
-- **⚙️ Admin Configuration**: Easy-to-use admin dashboard for model selection and settings
-- **👍 Feedback System**: Users can provide feedback to improve suggestion accuracy
-- **📈 Analytics**: Track suggestion acceptance rates and usage patterns
+- **Smart Assignment**: AI-powered assignee suggestions based on skills, workload, and historical patterns
+- **Priority Intelligence**: Automatic priority assessment based on impact and urgency analysis
+- **Skill Matching**: Routes tickets to team members with relevant expertise
 
-### How It Works
+### 🧠 Intelligent Ticket Triage & Tagging (NEW!)
 
-1. **Issue Created**: When a new issue is created in Jira
-2. **AI Analysis**: The app analyzes the issue content, components, and historical data
-3. **Smart Suggestions**: AI generates suggestions for assignee and priority with confidence scores
-4. **User Choice**: Suggestions appear in the issue panel - users can accept, reject, or provide feedback
-5. **Continuous Learning**: The system learns from feedback to improve future suggestions
+- **Automatic Categorization**: AI classifies issues into types (bug, feature, support, security, etc.)
+- **Priority Detection**: Analyzes content to determine appropriate priority levels
+- **Sentiment Analysis**: Detects emotional tone and customer frustration levels
+- **Urgency Assessment**: Identifies time-sensitive issues requiring immediate attention
+- **Auto-Labeling**: Applies relevant labels based on AI analysis
+- **Component Suggestions**: Recommends appropriate project components
+- **Escalation Risk Detection**: Flags tickets with high customer escalation potential
 
-## 🚀 Quick Start
+### 📊 Analytics & Insights
 
-### Prerequisites
+- **Triage Analytics Dashboard**: Comprehensive analytics on ticket categorization and sentiment
+- **Activity Tracking**: Monitor AI suggestions and their effectiveness
+- **Performance Metrics**: Track confidence scores and recommendation accuracy
+- **Escalation Monitoring**: Identify patterns in customer escalation risks
 
-- Node.js 18+ installed
-- Atlassian Developer account with Jira Cloud access
-- Forge CLI installed globally: `npm install -g @forge/cli`
-- OpenAI API key (for AI functionality)
+## 🛠️ Installation
 
-### Installation
+1. **Prerequisites**
 
-#### Option 1: Automated Deployment (Recommended)
+   - Forge CLI installed (`npm install -g @forge/cli`)
+   - OpenAI API key (for AI analysis)
+   - Jira Admin permissions
 
-**For Windows (PowerShell):**
-
-```powershell
-.\scripts\deploy.ps1
-```
-
-**For macOS/Linux:**
-
-```bash
-chmod +x scripts/deploy.sh
-./scripts/deploy.sh
-```
-
-#### Option 2: Manual Deployment
-
-1. **Clone and setup:**
+2. **Clone and Setup**
 
    ```bash
+   git clone <repository-url>
+   cd intelligent-task-routing
    npm install
-   cd static/ai-suggestions-panel
-   npm install
+   ```
+
+3. **Build the UI Components**
+
+   ```bash
    npm run build
-   cd ../..
+   # Or build components individually:
+   npm run build:admin    # Admin configuration UI
+   npm run build:triage   # Triage analytics dashboard
    ```
 
-2. **Login to Forge:**
-
-   ```bash
-   forge login
-   ```
-
-3. **Deploy the app:**
+4. **Deploy to Jira**
    ```bash
    forge deploy
    forge install
@@ -73,193 +60,231 @@ chmod +x scripts/deploy.sh
 
 ## ⚙️ Configuration
 
-### 1. Admin Configuration
+### 1. Basic Setup
 
-After installation, go to:
-**Jira Settings** → **Apps** → **AI Task Routing Configuration**
+Navigate to **Apps** → **AI Task Routing Configuration** in your Jira admin panel:
 
-### 2. Configure AI Model
+- **Enable AI Routing**: Turn the app on/off
+- **AI Model Selection**: Choose between GPT-4 or GPT-3.5-turbo
+- **API Key Configuration**: Set your OpenAI API key
+- **Confidence Thresholds**: Set minimum confidence levels for auto-actions
 
-1. **Add OpenAI API Key**: Enter your OpenAI API key
-2. **Select Model**: Choose between GPT-3.5 (faster, cheaper) or GPT-4 (more accurate)
-3. **Set Confidence Threshold**: Minimum confidence level for suggestions (recommended: 0.6)
+### 2. Triage Settings
 
-### 3. Enable Features
+Configure the new triage features:
 
-- **Auto-Assign**: Automatically assign issues (start with disabled for testing)
-- **Auto-Priority**: Automatically set priority levels
-- **Allow Reassignment**: Enable suggestions for already assigned issues
+- **Enable Triage**: Turn on AI-powered ticket analysis
+- **Auto-Labeling**: Automatically apply AI-suggested labels
+- **Auto-Components**: Automatically assign components (recommend starting disabled)
+- **Sentiment Analysis**: Enable emotional tone detection
+- **Urgency Detection**: Enable time-sensitivity analysis
 
-### 4. Configure Filters (Optional)
+### 3. Advanced Configuration
 
-- **Project Filter**: Limit to specific projects
-- **Issue Type Filter**: Apply only to certain issue types
-- **Component Filter**: Focus on specific components
-
-## 🎯 Using the App
-
-### For End Users
-
-1. **Create or view an issue** in Jira
-2. **Look for the "AI Suggestions" panel** on the right side
-3. **Review suggestions** with confidence scores and reasoning
-4. **Apply suggestions** with one click or provide feedback
-5. **See recent activity** and suggestion history
-
-### For Administrators
-
-1. **Monitor usage** through the admin dashboard
-2. **View analytics** including acceptance rates and model usage
-3. **Adjust settings** based on team feedback
-4. **Export configuration** for backup/sharing
-
-## 📊 Understanding AI Suggestions
-
-### Assignee Suggestions
-
-The AI considers:
-
-- **Component expertise** from historical assignments
-- **Issue content analysis** (keywords, complexity)
-- **Team workload** (when data available)
-- **Past resolution patterns**
-
-### Priority Suggestions
-
-The AI evaluates:
-
-- **Urgency indicators** in the description
-- **Issue type patterns** (bugs typically higher priority)
-- **Impact keywords** (security, critical, etc.)
-- **Historical priority patterns**
-
-### Confidence Scores
-
-- **80-100%**: High confidence - strong recommendation
-- **60-79%**: Medium confidence - good suggestion
-- **Below 60%**: Low confidence - suggestion filtered out (configurable)
-
-## 🔧 Advanced Configuration
-
-### Model Selection Guidelines
-
-- **GPT-3.5**: Best for high-volume usage, cost-effective, good general performance
-- **GPT-4**: Best for complex issues, higher accuracy, more expensive
-
-### Optimizing Performance
-
-1. **Start with suggestions only** (auto-assign disabled)
-2. **Monitor acceptance rates** in analytics
-3. **Adjust confidence threshold** based on feedback
-4. **Enable auto-assignment** once team trusts suggestions
-
-### Security Best Practices
-
-- **API Key Storage**: Keys are encrypted in Forge storage
-- **Data Privacy**: Only necessary issue data sent to AI models
-- **Opt-out Options**: Configurable data filtering
-- **Audit Trail**: All actions logged for compliance
-
-## 📈 Analytics & Monitoring
-
-### Key Metrics
-
-- **Total Suggestions Generated**
-- **Acceptance Rate** (suggestions applied by users)
-- **Model Usage** (distribution across AI models)
-- **Response Times** (AI processing speed)
-
-### Performance Monitoring
-
-```bash
-# View live logs
-forge logs --follow
-
-# Check app status
-forge status
-
-# Validate configuration
-forge lint
+```javascript
+// Custom field mapping for triage metadata
+customFields: {
+  aiConfidenceField: "customfield_10001",      // Store AI confidence scores
+  triageTimestampField: "customfield_10002",   // Store triage timestamps
+  sentimentScoreField: "customfield_10003",    // Store sentiment scores
+  escalationRiskField: "customfield_10004"     // Store escalation risk levels
+}
 ```
+
+## 🎯 How It Works
+
+### Triage Analysis Process
+
+1. **Content Analysis**: AI examines issue summary, description, and comments
+2. **Multi-dimensional Assessment**:
+   - **Category**: bug, feature, improvement, support, security, performance, etc.
+   - **Priority**: critical, high, medium, low based on business impact
+   - **Sentiment**: positive, neutral, negative with escalation risk assessment
+   - **Urgency**: immediate, high, medium, low based on time-sensitivity
+3. **Auto-Tagging**: Applies structured labels like `ai-category-bug`, `ai-priority-high`
+4. **Component Matching**: Suggests relevant project components
+5. **Escalation Flagging**: Identifies tickets requiring special attention
+
+### Smart Assignment
+
+- Uses triage results to inform routing decisions
+- Considers escalation risk for senior team member assignment
+- Factors in sentiment analysis for customer-facing issues
+- Prioritizes urgent issues for immediate assignment
+
+## 📈 Analytics Dashboard
+
+Access **Apps** → **AI Triage Analytics** to view:
+
+### Summary Metrics
+
+- Total issues triaged
+- Critical priority count
+- Negative sentiment detection
+- Immediate urgency flags
+
+### Detailed Analytics
+
+- **Category Distribution**: Pie chart of issue types
+- **Priority Analysis**: Bar chart of priority levels
+- **Sentiment Insights**: Distribution of emotional tones
+- **Urgency Patterns**: Analysis of time-sensitivity
+- **Recent Activity**: Table of latest triage actions
+
+### Activity Monitoring
+
+- AI confidence scores over time
+- Applied vs. suggested changes
+- Escalation risk trends
+- Team assignment patterns
+
+## 🏷️ Auto-Applied Labels
+
+The system automatically applies structured labels:
+
+### Category Labels
+
+- `ai-category-bug` - Software defects
+- `ai-category-feature` - New functionality requests
+- `ai-category-support` - Help requests
+- `ai-category-security` - Security-related issues
+- `ai-category-performance` - Performance problems
+
+### Status Labels
+
+- `ai-priority-critical` - Critical priority assigned
+- `ai-sentiment-negative` - Negative sentiment detected
+- `ai-urgency-immediate` - Immediate attention required
+- `ai-escalation-risk` - High escalation potential
+- `ai-customer-frustrated` - Customer frustration detected
+- `ai-urgent-language` - Urgent language patterns found
+
+## 🔍 Understanding AI Comments
+
+When the AI processes an issue, it adds a comprehensive comment including:
+
+```
+🤖 AI Ticket Triage Analysis (85% confidence)
+
+✅ Applied Changes:
+• 🎯 Priority set to HIGH
+• 🏷️ Added labels: ai-category-bug, ai-priority-high, ai-escalation-risk
+
+📊 Analysis Summary:
+• Category: bug
+• Priority: HIGH
+• Urgency: high
+• Sentiment: negative ⚠️ Escalation Risk: high
+
+💡 Recommendations:
+• ⚠️ Customer appears frustrated - prioritize communication and updates
+• 🚨 This issue requires immediate attention - consider escalating to senior team members
+
+🔍 Categorization Reasoning: Issue describes a critical login failure affecting multiple users in production environment
+⚡ Priority Reasoning: Production system failure with multiple user impact requires immediate attention
+```
+
+## 📝 API Integration
+
+### Custom Field Mapping
+
+Store triage metadata in custom fields:
+
+```javascript
+// Example: Accessing AI confidence in JQL
+project = "DEMO" AND "AI Confidence" > 80
+
+// Example: Finding high escalation risk issues
+project = "DEMO" AND "Escalation Risk" = "high"
+```
+
+### Webhook Integration
+
+The app triggers on:
+
+- `avi:jira:created:issue` - New issue triage
+- `avi:jira:updated:issue` - Re-triage on updates
+
+## 🔐 Security & Privacy
+
+- All AI analysis uses encrypted API connections
+- No sensitive data is stored permanently
+- Analytics data is anonymized
+- Configurable data retention periods
+- GDPR compliant data handling
+
+## 🎛️ Performance Tuning
+
+### Confidence Thresholds
+
+- **Auto-Labeling**: 0.6 (default) - Balance between automation and accuracy
+- **Auto-Priority**: 0.7 (default) - Higher threshold for priority changes
+- **Auto-Components**: 0.8 (default) - Highest threshold for component assignment
+
+### Rate Limiting
+
+- Respects OpenAI API rate limits
+- Configurable request throttling
+- Fallback mechanisms for API failures
 
 ## 🐛 Troubleshooting
 
 ### Common Issues
 
-**Issue: No suggestions appearing**
+1. **Triage Not Running**
 
-- ✅ Check if app is enabled in configuration
-- ✅ Verify OpenAI API key is configured
-- ✅ Ensure issue matches filters (project, type, etc.)
+   - Check `enableTriage` setting in configuration
+   - Verify OpenAI API key is valid
+   - Review app logs for errors
 
-**Issue: Low suggestion accuracy**
+2. **Low Confidence Scores**
 
-- ✅ Review confidence threshold setting
-- ✅ Provide feedback on suggestions to improve learning
-- ✅ Consider switching to GPT-4 for better analysis
+   - Ensure issue descriptions are detailed
+   - Check if project components are configured
+   - Review similar issues for context
 
-**Issue: Performance problems**
-
-- ✅ Check API rate limits in configuration
-- ✅ Monitor response times in logs
-- ✅ Consider using GPT-3.5 for faster responses
+3. **Missing Analytics Data**
+   - Analytics populate after first triage actions
+   - Check storage permissions
+   - Verify resolver functions are working
 
 ### Debug Mode
 
-```bash
-# Start development tunnel
-forge tunnel
+Enable detailed logging:
 
-# View detailed logs
-forge logs --verbose
+```javascript
+// In configuration
+logLevel: "debug";
 ```
 
-### Getting Help
+## 🔄 Updates & Migrations
 
-1. **Check logs**: `forge logs`
-2. **Review configuration**: Admin dashboard
-3. **Test with simple issues**: Create test cases
-4. **Contact support**: Include logs and configuration details
+### Version 2.0 Features
 
-## 🔮 Roadmap
-
-### Planned Features
-
-- **Workload Balancing**: Visual dashboard showing team capacity
-- **Custom Rules**: Business logic overrides for AI suggestions
-- **Multi-language Support**: Non-English issue analysis
-- **Confluence Integration**: Context from linked documentation
-- **Advanced Analytics**: Detailed performance insights
-- **Enterprise Features**: SSO, custom compliance, dedicated support
-
-### Model Additions
-
-- **Anthropic Claude**: Alternative AI model option
-- **Google Gemini**: Additional model choice
-- **Custom Models**: Support for organization-specific models
-
-## 🤝 Contributing
-
-This app follows Atlassian's best practices for Forge development:
-
-- **Security**: All data handling follows Atlassian security guidelines
-- **Performance**: Optimized for Jira Cloud scalability
-- **User Experience**: Native Jira UI/UX patterns
-- **Accessibility**: WCAG compliance for all UI components
+- ✅ Intelligent ticket triage
+- ✅ Sentiment analysis
+- ✅ Auto-tagging system
+- ✅ Analytics dashboard
+- ✅ Escalation risk detection
 
 ## 📄 License
 
-MIT License - See LICENSE file for details
+MIT License - see LICENSE file for details
 
-## 🆘 Support
+## 🤝 Contributing
 
-- **Documentation**: This README and inline help
-- **Logs**: Use `forge logs` for troubleshooting
-- **Community**: Atlassian Developer Community forums
-- **Issues**: GitHub issues for bug reports and feature requests
+1. Fork the repository
+2. Create a feature branch
+3. Implement your changes
+4. Add tests for new functionality
+5. Submit a pull request
+
+## 📞 Support
+
+- GitHub Issues: Report bugs and feature requests
+- Documentation: Check the `/Documents` folder for detailed guides
+- Community: Join our discussions for best practices
 
 ---
 
-**Built with ❤️ using Atlassian Forge and modern AI models**
-
-_Transform your Jira workflow with intelligent task routing - because the right task should reach the right person at the right time._
+**Note**: This app requires OpenAI API access and may incur usage costs based on your analysis volume. Monitor your API usage through the OpenAI dashboard.

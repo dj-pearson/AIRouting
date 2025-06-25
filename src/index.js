@@ -1,5 +1,7 @@
 import api, { route } from "@forge/api";
 import { AIRoutingEngine } from "./ai-routing-engine.js";
+import { TicketTriageEngine } from "./ticket-triage-engine.js";
+import { AutoTaggingManager } from "./auto-tagging-manager.js";
 import { ConfigurationManager } from "./configuration-manager.js";
 import { Logger } from "./utils/logger.js";
 
@@ -31,20 +33,44 @@ export async function issueEventHandler(event, context) {
       return;
     }
 
-    // Initialize AI routing engine
+    // Initialize AI engines
     const aiEngine = new AIRoutingEngine(config);
+    const triageEngine = config.enableTriage
+      ? new TicketTriageEngine(config)
+      : null;
+    const autoTaggingManager = new AutoTaggingManager(config);
 
     // Get enhanced issue data
     const issueData = await getEnhancedIssueData(event.issue.key);
 
-    // Generate AI suggestions
-    const suggestions = await aiEngine.generateSuggestions(issueData);
+    // Perform triage analysis if enabled
+    let triageResult = null;
+    if (triageEngine) {
+      triageResult = await triageEngine.performTriage(issueData);
 
-    // Apply suggestions based on configuration
+      // Apply triage suggestions
+      await autoTaggingManager.applyTriageSuggestions(
+        event.issue.key,
+        triageResult
+      );
+    }
+
+    // Generate AI routing suggestions
+    const suggestions = await aiEngine.generateSuggestions(
+      issueData,
+      triageResult
+    );
+
+    // Apply routing suggestions based on configuration
     await applySuggestions(event.issue.key, suggestions, config);
 
     // Log activity for analytics
-    await logRoutingActivity(event.issue.key, suggestions, config);
+    await logRoutingActivity(
+      event.issue.key,
+      suggestions,
+      config,
+      triageResult
+    );
 
     logger.info("Successfully processed issue", {
       issueKey: event.issue.key,
@@ -274,7 +300,12 @@ async function applySuggestions(issueKey, suggestions, config) {
 /**
  * Logs routing activity for analytics and learning
  */
-async function logRoutingActivity(issueKey, suggestions, config) {
+async function logRoutingActivity(
+  issueKey,
+  suggestions,
+  config,
+  triageResult = null
+) {
   try {
     const activity = {
       issueKey,
@@ -284,7 +315,21 @@ async function logRoutingActivity(issueKey, suggestions, config) {
         model: config.selectedModel,
         autoAssign: config.autoAssign,
         autoSetPriority: config.autoSetPriority,
+        enableTriage: config.enableTriage,
       },
+      triage: triageResult
+        ? {
+            category: triageResult.categorization.type,
+            priority: triageResult.priority.level,
+            urgency: triageResult.urgency.level,
+            sentiment: {
+              tone: triageResult.sentiment.tone,
+              escalationRisk: triageResult.sentiment.escalationRisk,
+            },
+            confidence: triageResult.confidence,
+            recommendationsCount: triageResult.recommendations.length,
+          }
+        : null,
     };
 
     // Store in Forge storage for analytics
